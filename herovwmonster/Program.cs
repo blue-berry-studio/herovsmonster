@@ -1,72 +1,61 @@
 ﻿using System;
-using System.Collections.Generic;
+
+//                       __  __                   _    _______    __  ___                 __           
+//                      / / / /__  _________     | |  / / ___/   /  |/  /___  ____  _____/ /____  _____
+//                     / /_/ / _ \/ ___/ __ \    | | / /\__ \   / /|_/ / __ \/ __ \/ ___/ __/ _ \/ ___/
+//                    / __  /  __/ /  / /_/ /    | |/ /___/ /  / /  / / /_/ / / / (__  ) /_/  __/ /    
+//                   /_/ /_/\___/_/   \____/     |___//____/  /_/  /_/\____/_/ /_/____/\__/\___/_/     
 
 class Program
 {
     static void Main()
     {
-        List<Character> heroes = new List<Character>
-        {
-            new Warrior("Танк"),
-            new Mage("Гендальф")
-        };
+        Console.WriteLine("    __  __                   _    _______    __  ___                 __           ");
+        Console.WriteLine("   / / / /__  _________     | |  / / ___/   /  |/  /___  ____  _____/ /____  _____");
+        Console.WriteLine("  / /_/ / _ \\/ ___/ __ \\    | | / /\\__ \\   / /|_/ / __ \\/ __ \\/ ___/ __/ _ \\/ ___/");
+        Console.WriteLine(" / __  /  __/ /  / /_/ /    | |/ /___/ /  / /  / / /_/ / / / (__  ) /_/  __/ /    ");
+        Console.WriteLine("/_/ /_/\\___/_/   \\____/     |___//____/  /_/  /_/\\____/_/ /_/____/\\__/\\___/_/     ");
 
-        List<Character> monsters = new List<Character>
-        {
-            new Monster("Гоблин", 70, 10),
-            new Monster("Орк", 100, 12)
-        };
+        Warrior hero = new Warrior("Танк");
+        Monster monster = new Monster("Гоблин", 80, 10);
 
-        Console.WriteLine("⚔️ Бой начинается!\n");
+        // 🎒 даём предметы
+        hero.AddItem(new HealthPotion { Name = "Зелье лечения" });
+        hero.AddItem(new Bomb { Name = "Бомба" });
 
-        while (heroes.Exists(h => h.IsAlive) && monsters.Exists(m => m.IsAlive))
+        Console.WriteLine("\n⚔️ Бой начинается!\n");
+
+        while (hero.IsAlive && monster.IsAlive)
         {
-            // Ход героев
-            foreach (var hero in heroes)
+            Console.WriteLine("\n1 - Атака | 2 - Предмет");
+            string input = Console.ReadLine();
+
+            if (input == "2")
             {
-                if (!hero.IsAlive) continue;
+                hero.ShowInventory();
+                Console.Write("Выбери предмет: ");
 
-                var target = monsters.Find(m => m.IsAlive);
-                if (target == null) break;
-
-                hero.Attack(target);
-
-                if (!target.IsAlive)
+                if (int.TryParse(Console.ReadLine(), out int index))
                 {
-                    Console.WriteLine($"☠️ {target.Name} погиб!");
-                    hero.GainExperience(30);
+                    hero.UseItem(index);
                 }
             }
+            else
+            {
+                hero.Attack(monster);
+            }
 
-            // Проверка после хода
-            if (!monsters.Exists(m => m.IsAlive))
+            if (!monster.IsAlive)
                 break;
 
-            // Ход монстров
-            foreach (var monster in monsters)
-            {
-                if (!monster.IsAlive) continue;
-
-                var target = heroes.Find(h => h.IsAlive);
-                if (target == null) break;
-
-                monster.Attack(target);
-
-                if (!target.IsAlive)
-                {
-                    Console.WriteLine($"☠️ {target.Name} погиб!");
-                }
-            }
-
-            Console.WriteLine("\n--- Следующий раунд ---\n");
-            Console.ReadLine();
+            monster.Attack(hero);
         }
 
-        Console.WriteLine("\n🏁 Бой окончен!");
+        Console.WriteLine("\n🏁 Конец боя");
 
-        if (heroes.Exists(h => h.IsAlive))
-            Console.WriteLine("Герои победили!");
+        if (hero.IsAlive)
+            Console.WriteLine("Герой победил!");
         else
-            Console.WriteLine("Монстры победили!");
+            Console.WriteLine("Монстр победил!");
     }
 }

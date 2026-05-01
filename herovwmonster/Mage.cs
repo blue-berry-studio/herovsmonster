@@ -22,7 +22,12 @@ public class Mage : Character
     public void Heal()
     {
         int healAmount = 15;
-        Health += healAmount;
-        Console.WriteLine($"✨ {Name} лечит себя на {healAmount} (HP: {Health}/{maxHealth})");
+
+        health += healAmount;
+
+        if (health > maxHealth)
+            health = maxHealth;
+
+        Console.WriteLine($"✨ {Name} лечит себя на {healAmount} (HP: {health}/{maxHealth})");
     }
 }

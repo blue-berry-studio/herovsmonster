@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 public abstract class Character
 {
@@ -6,68 +7,74 @@ public abstract class Character
 
     protected int maxHealth;
     protected int health;
-
-    public int Health
-    {
-        get => health;
-        protected set
-        {
-            if (value < 0) health = 0;
-            else if (value > maxHealth) health = maxHealth;
-            else health = value;
-        }
-    }
+    public int Health => health;
 
     protected int damage;
-    public int Damage
-    {
-        get => damage;
-        protected set => damage = value < 0 ? 0 : value;
-    }
+    public int Damage => damage;
 
-    public int Level { get; private set; } = 1;
-    public int Experience { get; private set; } = 0;
+    public List<Item> Inventory { get; private set; } = new List<Item>();
 
     protected static Random random = new Random();
 
-    public Character(string name, int health, int damage)
+    public Character(string name, int hp, int dmg)
     {
         Name = name;
-        this.maxHealth = health;
-        this.Health = health;
-        this.Damage = damage;
+        maxHealth = hp;
+        health = hp;
+        damage = dmg;
     }
 
     public abstract void Attack(Character target);
 
     public virtual void TakeDamage(int amount)
     {
-        Health -= amount;
-        Console.WriteLine($"{Name} получает {amount} урона (HP: {Health}/{maxHealth})");
+        health -= amount;
+        if (health < 0) health = 0;
+
+        Console.WriteLine($"{Name} получает {amount} урона (HP: {health}/{maxHealth})");
     }
 
-    public void GainExperience(int exp)
+    public void Heal(int amount)
     {
-        Experience += exp;
-        Console.WriteLine($"{Name} получает {exp} опыта");
+        health += amount;
+        if (health > maxHealth) health = maxHealth;
+    }
 
-        if (Experience >= Level * 50)
+    public bool IsAlive => health > 0;
+
+    
+
+    public void AddItem(Item item)
+    {
+        Inventory.Add(item);
+        Console.WriteLine($"{Name} получил: {item.Name}");
+    }
+
+    public void ShowInventory()
+    {
+        if (Inventory.Count == 0)
         {
-            LevelUp();
+            Console.WriteLine("Инвентарь пуст");
+            return;
+        }
+
+        Console.WriteLine("Инвентарь:");
+        for (int i = 0; i < Inventory.Count; i++)
+        {
+            Console.WriteLine($"{i}: {Inventory[i].Name}");
         }
     }
 
-    protected virtual void LevelUp()
+    public void UseItem(int index)
     {
-        Level++;
-        Experience = 0;
+        if (index < 0 || index >= Inventory.Count)
+        {
+            Console.WriteLine("Неверный выбор");
+            return;
+        }
 
-        maxHealth += 20;
-        Damage += 5;
-        Health = maxHealth;
-
-        Console.WriteLine($"🔥 {Name} повышает уровень! Теперь уровень {Level}");
+        var item = Inventory[index];
+        item.Use(this);
+        Inventory.RemoveAt(index);
     }
-
-    public bool IsAlive => Health > 0;
 }
